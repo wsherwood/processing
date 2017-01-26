@@ -35,5 +35,4 @@ void draw(){
   for(IDrawable obj: objects){
     obj.draw();
   }
-  System.out.println(frameCount++);
 }

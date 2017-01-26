@@ -2,15 +2,18 @@ public abstract class SwarmNode implements IDrawable{
   protected PVector location;
   protected PVector velocity;
   protected PVector acceleration;
+  protected Stack<PVector> path;
   protected color c;
   protected int size = 3;
   protected String id;
   
+  protected final float _MSPEED = 1.5f;
+  
   //Constructor
   public SwarmNode(){
-    location = new PVector(0, 0);
-    velocity = new PVector(0, 0);
-    acceleration = new PVector(0, 0);
+    location = new PVector(0.0f, 0.0f);
+    velocity = new PVector(0.0f, 0.0f);
+    acceleration = new PVector(0.0f, 0.0f);
     c = color(0,0,0,0.5);
     id = "NOT ASSIGNED";
   }

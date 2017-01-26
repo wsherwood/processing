@@ -8,7 +8,7 @@ public class Hive implements IDrawable {
   final int SIZE = 25; //pxs
   
   //Hive capacity
-  final int CAPACITY = 50;
+  final int CAPACITY = 1;
 
   public Hive() {
     nodes = new ArrayList<SwarmNode>();
@@ -39,7 +39,9 @@ public class Hive implements IDrawable {
    */
    double chance =  100.0 * (((double) observers.size()) / (3 * (CAPACITY + Math.pow(scouts.size(),2.0))));
    
-   System.out.println("Chance: " + chance);
+   if( debug != Debug.OFF) {
+     System.out.println("Chance: " + chance);
+   }
 
    if( random(0, 100) <= chance ){
      System.out.println("New scout!");
@@ -48,6 +50,8 @@ public class Hive implements IDrawable {
    }
    
    // negative feed back
+   
+   // needs to only be scouts within the hive 
    chance = (double) scouts.size() / CAPACITY;
    if( random( 0, 100) <= chance ){
      System.out.println("New Observer!");
