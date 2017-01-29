@@ -1,64 +1,51 @@
 public class Hive implements IDrawable {
   ArrayList<SwarmNode> nodes;
   ArrayList<ScoutNode> scouts;
-  ArrayList<UnemployedNode> observers;
+  ArrayList<ObserverNode> observers;
+  PVector bestFood;
   PVector location;
-  
+
   //Draw dimensions
   final int SIZE = 25; //pxs
-  
+
   //Hive capacity
-  final int CAPACITY = 1;
+  final int CAPACITY = 30;
 
   public Hive() {
     nodes = new ArrayList<SwarmNode>();
     scouts = new ArrayList<ScoutNode>();
-    observers = new ArrayList<UnemployedNode>();
-    
-    for(int i = 0; i < CAPACITY; i++){
-      observers.add(new UnemployedNode());
+    observers = new ArrayList<ObserverNode>();
+
+    for (int i = 0; i < CAPACITY; i++) {
+      observers.add(new ObserverNode());
     }
-    
+
     location = new PVector(0, 0);
+    bestFood = new PVector();
   }
 
   /**
    * Handles the observers, and their state changes
   /*************************************************/
   public void simulate() {
-    for( ScoutNode s : scouts ){
+    // REPEAT
+    //   For each employed bee goes to a food source in her memory and determines a neighbour source, then evaluates the food amout and dances
+    //   Onlooker bees watch the dances or employed bees and chooses a source based on the dance score, becoming an employed bee.
+
+
+    for ( ObserverNode o : observers ) {
+      o.simulate();
+      o.toString();
+    }
+
+    //   Abandoned food sources are determined and scouts search for new foods.
+    for ( ScoutNode s : scouts ) {
       s.simulate();
     }
-  
-  /* Create scouts based on how many there currently are associated with the hive,
-   * 
-   * % of turning an observer into a scout 
-   *         current number of observers
-   *    =     ____________________________
-   *    3 * (max capacity + number of current scouts)
-   */
-   double chance =  100.0 * (((double) observers.size()) / (3 * (CAPACITY + Math.pow(scouts.size(),2.0))));
-   
-   if( debug != Debug.OFF) {
-     System.out.println("Chance: " + chance);
-   }
+    //   Best food sources found is registered
+    // UNTIL (requirements are met)
 
-   if( random(0, 100) <= chance ){
-     System.out.println("New scout!");
-     // Select an arbitrary observer to transform into a scout
-     scouts.add( new ScoutNode(observers.remove(0)));
-   }
-   
-   // negative feed back
-   
-   // needs to only be scouts within the hive 
-   chance = (double) scouts.size() / CAPACITY;
-   if( random( 0, 100) <= chance ){
-     System.out.println("New Observer!");
-     observers.add( new UnemployedNode( scouts.remove(0)));
-   }
-   
-   return;
+    return;
   }
 
   /****
@@ -79,13 +66,24 @@ public class Hive implements IDrawable {
     pushMatrix();
     drawSwarms();
   }
-  
-  private void drawSwarms(){
-    for( ScoutNode s : scouts ){
+
+  private void drawSwarms() {
+    for ( ScoutNode s : scouts ) {
       s.draw();
     }
-    for( UnemployedNode o : observers ){
+    for ( ObserverNode o : observers ) {
       o.draw();
     }
   }
+
+
+  // ISubject interface
+  public void add( ObserverNode ob ) {
+  }
+
+  public void remove( ObserverNode ob ) {
+  }
+
+  public void sendNotify() {
+  };
 }

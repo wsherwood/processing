@@ -1,5 +1,6 @@
 public class FoodNode extends SwarmNode { //implements IDrawable{
   private int currentFood;
+  private boolean occupied = false;
 
   public FoodNode() {
     super();                //Explicit method call because I said so
@@ -15,7 +16,7 @@ public class FoodNode extends SwarmNode { //implements IDrawable{
     return;
   }
 
-  //@override
+  //@Override
   public void draw() {
     noStroke();
     fill(0, 255, 0);
@@ -29,6 +30,13 @@ public class FoodNode extends SwarmNode { //implements IDrawable{
     return currentFood;
   }
 
+  public boolean isOccupied() {
+    return occupied;
+  }
+  
+  public void setOccupied( boolean val ) {
+    occupied = val;
+  }
 
   //**************************************Private methods*********************************************
   private void initilize() {

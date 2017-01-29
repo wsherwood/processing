@@ -30,7 +30,7 @@ void setup(){
 void draw(){
   //delay(200);
   background(255);
-  hive.simulate();
+  hive.simulate(); //<>//
   
   for(IDrawable obj: objects){
     obj.draw();

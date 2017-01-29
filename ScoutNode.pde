@@ -1,10 +1,11 @@
-import java.util.Stack; //<>// //<>// //<>// //<>// //<>//
-import java.util.List;
-public class ScoutNode extends SwarmNode {
-  Stack<PVector> directions;
+import java.util.Stack; //<>//
+public class ScoutNode extends SwarmNode implements ISubject{
+  private Stack<PVector> directions;
+  private ArrayList<ObserverNode> observers;
   private final float _RANGE = 300.0f;
-  private PVector foodLocation;
-  boolean returning; // else searching
+  private final int _MAX_OBSERVERS = 5;
+  private PVector hiveLocation;
+  private boolean returning; // else searching
 
   public ScoutNode() {
     super();
@@ -12,53 +13,48 @@ public class ScoutNode extends SwarmNode {
   }
 
   // State Constructor
-  protected ScoutNode(UnemployedNode n) {
+  protected ScoutNode(SwarmNode n) {
     super();
     id = n.id;
     location = n.location;
     velocity = n.velocity;
     acceleration = n.acceleration;
     path = n.path;
+    hiveLocation = n.location;      // Since we can only create scouts from unemployed bees within the hive, we can safely assume that it's current location is within.
     initialize();
   }
 
   public void simulate() {
     //TODO: ACTUAL LOGIC
+    // If in the hive
+    if ( this.location.x >= hive.location.x - ( hive.SIZE /2 ) && this.location.x <= hive.location.x + ( hive.SIZE / 2 ) &&
+         this.location.y >= hive.location.y - ( hive.SIZE /2 ) && this.location.y <= hive.location.y + ( hive.SIZE / 2 ) ) {
+           // let the possible observers in the hive know the new info.
+           // Dance or send notify
+           sendNotify();
+    }
+    // else search
+    //     if( out of energy || food located )
+    //     return home
+    // move
 
-    if (path == null) {
-      calculatePath();
+    velocity.add( this.acceleration );
+    if( velocity.mag() >= _MSPEED ) {
+      velocity.normalize().mult(_MSPEED);      //Ensure it doesn't travel faster than possible.
     }
 
-    if (location.equals(foodLocation)) {      // If the scout, has arrived at the food source.
-      returning = true;
-    }
-
-    if (!returning) {           // If searching, move to the next dermined place.
-      if ( directions.isEmpty() ) { 
-        returning = true;
-        return;
-      }
-      location = directions.pop();
-      path.push(location);
-    } else if (returning && !path.isEmpty()) { // Use the path taken to get here and return the same way.
-      PVector nextDirection = path.pop();
-      location = (nextDirection);
-    } else {
-      returning = !returning;
-    }
-
+    location.add( velocity );
+    acceleration.mult( 0 );       // Zero out forces
+    
     if (debug == Debug.FULL) {
-      System.out.println(this.toString());
-      /*System.out.printf( "Acceleration: " + "[%.3f, %.3f]%n", this.acceleration.x, this.acceleration.y);
-       System.out.printf( "Velocity: " + "[%.3f, %.3f]%n", this.velocity.x, this.velocity.y);
-       System.out.printf( "Location: " + "[%.3f, %.3f]%n", this.location.x, this.location.y);
-       */
+      System.out.println( this.toString() );
     }
   }
 
   public void draw() {
     super.draw();
 
+    // Debug code
     if (debug == Debug.FULL) {
       String message;
       if (returning) {
@@ -75,73 +71,32 @@ public class ScoutNode extends SwarmNode {
       text(message, location.x, location.y);
     }
   }
+  
+  public void add( ObserverNode n ) {
+    
+  }
+  
+  public void remove( ObserverNode n ) {
+  }
+  
+  public void sendNotify(){
+    for ( ObserverNode obs : observers ) {
+      obs.onNotify( this, new DanceInfo( directions.pop() ) );
+    }
+  }
 
   private void initialize() {
     size = 4;
     c = color(200, 0, 0, 100);
     directions = new Stack<PVector>();
     returning = false;
-    foodLocation = null;
+    hiveLocation = null;
+    id = "" + (int) random(0, 999);
+    observers = new ArrayList<ObserverNode>();
   }
 
   private void calculatePath() {
 
-    path = new Stack<PVector>();
-
-    // Randomly select a quadrant to move into
-    int quadIndex = (int) random(4) + 1; // 1 to 4
-    System.out.println( quadIndex );
-    PVector end = null;
-    noFill();
-    stroke(6);
-    // Select a random point within that quadrant to move to within the range of the scout
-    if ( quadIndex == 1) {        // +x +y
-      end = new PVector( random(_RANGE), random(_RANGE));
-      rect(width/2, height/2, width/2, width/2);
-    } else if ( quadIndex == 2) { // +x +y
-      end = new PVector( random(_RANGE), -random(_RANGE));
-      rect(width/2, height/2, width/2, -width/2);
-    } else if ( quadIndex == 3) { // -x -y
-      end = new PVector( -random(_RANGE), -random(_RANGE));
-      rect(width/2, height/2, -width/2, -width/2);
-    } else if ( quadIndex == 4) { // -x +y
-      end = new PVector( -random(_RANGE), random(_RANGE));
-      rect(width/2, height/2,-width/2, width/2);
-    } else { //This is a bad catch
-      end = new PVector( 0, 0 );
-    }
-
-
-
-    // interpolate the steps to get there
-    // determine the number of interpolation by dividing the the calculated distance by the MSPEED
-    // path.add(location); // lerp 0.0
-
-    float numberOfInterpolations =  _MSPEED / PVector.dist(location, end);
-    float iterations = 1;
-    while (numberOfInterpolations * iterations  < 1.0) {
-      path.push( PVector.lerp(location, end, numberOfInterpolations * iterations));
-      iterations++;
-    }
-
-
-    // add steps to stack
-    path.push( end );
-
-    List<PVector> tempD = new ArrayList<PVector>( path );
-
-    for (int i = tempD.size(); i > 0; i-- ) {
-      directions.add( path.pop() );
-    }
-
-    if ( debug == Debug.FULL || debug == Debug.CONSOLE) {
-      System.out.println("Starting location: " + location +
-        "\nEnding location: " + end +
-        "\n" + path.toString());
-    }
-
-    // set Directions to be the inverted stack order
-    // finish
     return;
   }
 }
