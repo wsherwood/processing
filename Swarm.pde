@@ -9,7 +9,7 @@ public enum Debug{
   OFF;
 }
 
-Debug debug = Debug.OFF; //By default set the debug global to full
+Debug debug = Debug.FULL; //By default set the debug global to full
 
 void setup(){
   size(600, 600);  

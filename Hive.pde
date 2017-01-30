@@ -35,10 +35,27 @@ public class Hive implements IDrawable {
 
     for ( ObserverNode o : observers ) {
       o.simulate();
-      o.toString();
     }
-
     //   Abandoned food sources are determined and scouts search for new foods.
+    if ( scouts.size() <= 3 ) {
+      // unregister possible observers
+      ObserverNode ob = observers.get( 0 );
+      for ( ScoutNode s : scouts ) {
+        s.remove( ob );
+      }
+      
+      scouts.add( new ScoutNode( ob ) );
+      observers.remove( ob );
+      
+      ScoutNode sN = scouts.get( scouts.size() -1 ); // get the new scout
+      
+      // register observers for the new scout
+      int [] observerIndex = sampleRandomNumbersWithoutRepetition(0, observers.size(), 5);
+      for ( int i = 0; i < observerIndex.length; i++ ) {
+        sN.add( observers.get( observerIndex[i] ) );
+      }
+      
+    }  
     for ( ScoutNode s : scouts ) {
       s.simulate();
     }
@@ -86,4 +103,22 @@ public class Hive implements IDrawable {
 
   public void sendNotify() {
   };
+  
+  private int[] sampleRandomNumbersWithoutRepetition(int start, int end, int count) {
+
+    int[] result = new int[count];
+    int cur = 0;
+    int remaining = end - start;
+    for (int i = start; i < end && count > 0; i++) {
+        float probability = random( 0, Float.MAX_VALUE );
+        if (probability < ((float) count) / (float) remaining) {
+            count--;
+            result[cur++] = i;
+        }
+        remaining--;
+    }
+    return result;
+}
+  
+  
 }

@@ -2,7 +2,7 @@ import java.util.Stack; //<>//
 public class ScoutNode extends SwarmNode implements ISubject{
   private Stack<PVector> directions;
   private ArrayList<ObserverNode> observers;
-  private final float _RANGE = 300.0f;
+  private final float _RANGE = 150.0f;
   private final int _MAX_OBSERVERS = 5;
   private PVector hiveLocation;
   private boolean returning; // else searching
@@ -13,7 +13,7 @@ public class ScoutNode extends SwarmNode implements ISubject{
   }
 
   // State Constructor
-  protected ScoutNode(SwarmNode n) {
+  protected ScoutNode( ObserverNode n ) {
     super();
     id = n.id;
     location = n.location;
@@ -28,17 +28,24 @@ public class ScoutNode extends SwarmNode implements ISubject{
     //TODO: ACTUAL LOGIC
     // If in the hive
     if ( this.location.x >= hive.location.x - ( hive.SIZE /2 ) && this.location.x <= hive.location.x + ( hive.SIZE / 2 ) &&
-         this.location.y >= hive.location.y - ( hive.SIZE /2 ) && this.location.y <= hive.location.y + ( hive.SIZE / 2 ) ) {
+         this.location.y >= hive.location.y - ( hive.SIZE /2 ) && this.location.y <= hive.location.y + ( hive.SIZE / 2 ) &&
+         returning ) {
            // let the possible observers in the hive know the new info.
            // Dance or send notify
            sendNotify();
-    }
-    // else search
-    //     if( out of energy || food located )
-    //     return home
-    // move
-
-    velocity.add( this.acceleration );
+           
+           // begin to search again
+           returning = false;
+    } else if ( PVector.dist( location, hiveLocation ) >= _RANGE ) {
+      System.out.println( "RANGE HTI" );
+      returning = true;
+    } 
+    calculatePath();
+    
+    acceleration = directions.peek();
+    
+    
+    velocity.add( acceleration );
     if( velocity.mag() >= _MSPEED ) {
       velocity.normalize().mult(_MSPEED);      //Ensure it doesn't travel faster than possible.
     }
@@ -47,6 +54,7 @@ public class ScoutNode extends SwarmNode implements ISubject{
     acceleration.mult( 0 );       // Zero out forces
     
     if (debug == Debug.FULL) {
+      System.out.println( PVector.dist( hiveLocation, location ) );
       System.out.println( this.toString() );
     }
   }
@@ -73,15 +81,18 @@ public class ScoutNode extends SwarmNode implements ISubject{
   }
   
   public void add( ObserverNode n ) {
-    
+    observers.add( n );
   }
   
   public void remove( ObserverNode n ) {
+    observers.remove( n );
   }
   
   public void sendNotify(){
-    for ( ObserverNode obs : observers ) {
-      obs.onNotify( this, new DanceInfo( directions.pop() ) );
+    if( observers.isEmpty() == false ) {
+      for ( ObserverNode obs : observers ) {
+        obs.onNotify( this, new DanceInfo( directions.pop() ) );
+      }
     }
   }
 
@@ -90,13 +101,21 @@ public class ScoutNode extends SwarmNode implements ISubject{
     c = color(200, 0, 0, 100);
     directions = new Stack<PVector>();
     returning = false;
-    hiveLocation = null;
+    hiveLocation = location.copy();
     id = "" + (int) random(0, 999);
     observers = new ArrayList<ObserverNode>();
   }
 
   private void calculatePath() {
-
-    return;
+    float theta;
+    PVector target = new PVector();
+    if ( returning ) {
+      directions.pop();
+    } else if ( !returning ) {
+      theta = random( 0, 360 );     // select a random angle
+      target = PVector.fromAngle( theta ); // Create a new PVector from the randomly created angle.
+      directions.add( target );
+    }
+    
   }
 }

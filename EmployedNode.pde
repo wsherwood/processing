@@ -6,7 +6,7 @@ public class EmployedNode extends SwarmNode {
   }
   
   // Becomeing a employed node requires know a food location
-  protected EmployedNode( SwarmNode n, PVector foodLoc ){
+  protected EmployedNode( ObserverNode n, PVector foodLoc ){
     super();
     id = n.id;
     location = n.location;

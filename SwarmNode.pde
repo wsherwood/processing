@@ -44,8 +44,8 @@ public abstract class SwarmNode implements IDrawable {
   public PVector getAccleration() {
     return acceleration;
   }
-  
-  public void applyForce( PVector force ){
+
+  public void applyForce( PVector force ) {
     acceleration.add( force );
   }
 

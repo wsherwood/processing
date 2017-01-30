@@ -1,4 +1,4 @@
-public class ObserverNode extends SwarmNode {
+public class ObserverNode extends SwarmNode { //<>//
   public ObserverNode() {
     super();
     initialize();
@@ -17,12 +17,12 @@ public class ObserverNode extends SwarmNode {
     shuffleAbout();
     
     velocity.add( this.acceleration );
-    if( velocity.mag() >= _MSPEED ) {
+    if ( velocity.mag() >= _MSPEED ) {
       velocity.normalize().mult(_MSPEED);
     }
-        
+
     location.add( this.velocity );
-    
+
     acceleration.mult(0);  // clear accumulated accleration forces
   }
 
@@ -37,14 +37,13 @@ public class ObserverNode extends SwarmNode {
       popMatrix();
 
       // Place self into employednodes
-      hive.nodes.add(new EmployedNode( (SwarmNode) this, dI.location ) );
+      hive.nodes.add(new EmployedNode( this, dI.location ) );
 
       // Deregister as an observer
       hive.observers.remove(this);
-
-    } //<>//
+    }
   }
-  
+
   private void initialize() {
     c = color(125, 125, 125, 125); // Grey
     location.x = random( -12, 12);
@@ -69,9 +68,8 @@ public class ObserverNode extends SwarmNode {
     if ( this.location.y >= hive.location.y + hive.SIZE / 2 ) {
       newY = -random( 0, 1 );
     }
-    
+
     PVector steeringForce = new PVector( newX, newY ).normalize();
-    applyForce( steeringForce );  
+    applyForce( steeringForce );
   }
-  
 }
